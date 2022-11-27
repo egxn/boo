@@ -1,0 +1,7 @@
+fastapi
+jiwer
+requests
+sounddevice
+soundfile
+whisper
+coqui
