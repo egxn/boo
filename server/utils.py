@@ -1,10 +1,9 @@
-import calendar
 import sounddevice as sd
 import soundfile as sf
 import time
 
 def get_timestamp():
-    return str(calendar.timegm(time.gmtime()))
+    return str(int(time.time()))
 
 def list_microphones():
     print(sd.query_devices())

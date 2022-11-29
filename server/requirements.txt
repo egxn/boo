@@ -1,7 +1,8 @@
+coqui
 fastapi
 jiwer
+python-multipart
 requests
 sounddevice
 soundfile
 whisper
-coqui

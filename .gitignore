@@ -1,2 +1,4 @@
 server/__pycache__
 server/.env
+server/files
+server/*.http
