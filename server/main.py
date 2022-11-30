@@ -4,7 +4,10 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.staticfiles import StaticFiles
 from typing import Union
 from pydantic import BaseModel
+from redis import Redis
+from rq import Queue
 
+from queue_callbacks import success_tts, error_tts, success_stt, error_stt
 from tts_coqui import list_models, tts
 from stt_whisper import stt
 
@@ -32,8 +35,11 @@ class TextToText(User):
     text: str
 
 
+redis_conn = Redis()
+queue = Queue(connection=redis_conn)
+
 app = FastAPI()
-app.mount("/audios", StaticFiles(directory="files"), name="audios")
+app.mount("/audios", StaticFiles(directory="files_tss"), name="audios")
 
 @app.get("/api/healtcheck")
 async def root():
@@ -41,14 +47,13 @@ async def root():
 
 @app.post("/api/stt")
 async def speech_to_text(file: UploadFile = File(...)):
-    with open(file.filename, 'wb') as audio:
+    with open('files_stt/' + file.filename, 'wb') as audio:
         content = await file.read()
         audio.write(content)
         audio.close()
     try:
-        text = stt(file.filename)
-        os.remove(file.filename)
-        return {"text": text}
+        queue.enqueue(stt, file.filename, on_success=success_stt, on_failure=error_stt)
+        return {"message": "OK"}
     except Exception as e:
         os.remove(file.filename)
         return {"error": str(e)}
@@ -60,8 +65,8 @@ async def tts_models():
 
 @app.post("/api/tts")
 async def text_to_speech(textToSpeech: Text):
-    filename = await tts(textToSpeech.text, textToSpeech.user)
-    return {"filename": filename}
+    queue.enqueue(tts, args=(textToSpeech.text, textToSpeech.user), on_success=success_tts, on_failure=error_tts)
+    return {"message": "OK"}
 
 @app.post("api/analyze/")
 async def analyze(text: Text):
@@ -86,16 +91,6 @@ async def translate(translate: TextToText):
 @app.post("api/diff/")
 async def diff(textA: Text, textB: Text):
     pass
-
-@app.get("/audios")
-def audios():
-    out = []
-    for filename in os.listdir("files"):
-        out.append({
-            "name": filename.split(".")[0],
-            "path": "/files/" + filename
-        })
-    return out
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=5000)

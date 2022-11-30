@@ -2,6 +2,8 @@ coqui
 fastapi
 jiwer
 python-multipart
+redis
+rq
 requests
 sounddevice
 soundfile
