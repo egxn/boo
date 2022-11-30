@@ -1,11 +1,11 @@
 import os
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile
 from fastapi.staticfiles import StaticFiles
 from typing import Union
 from pydantic import BaseModel
 
-from tts_coqui import tts
+from tts_coqui import list_models, tts
 from stt_whisper import stt
 
 
@@ -14,19 +14,19 @@ class User(BaseModel):
     user: str
 
 
-class Prompt(User, BaseModel):
+class Prompt(User):
     prompt: str
 
 
-class SpeechToText(User, BaseModel):
+class Speech(User, UploadFile):
     speech: str
 
 
-class Text(User, BaseModel):
+class Text(User):
     text: str
 
 
-class TextToText(User, BaseModel):
+class TextToText(User):
     lang_source: Union[str, None]
     lang_target: Union[str, None]
     text: str
@@ -39,13 +39,27 @@ app.mount("/audios", StaticFiles(directory="files"), name="audios")
 async def root():
     return {"message": "OK"}
 
-@app.post("api/stt/")
-def speech_to_text(speechToText: SpeechToText):
-    stt(speechToText.audio_file)
+@app.post("/api/stt")
+async def speech_to_text(file: UploadFile = File(...)):
+    with open(file.filename, 'wb') as audio:
+        content = await file.read()
+        audio.write(content)
+        audio.close()
+    try:
+        text = stt(file.filename)
+        os.remove(file.filename)
+        return {"text": text}
+    except Exception as e:
+        os.remove(file.filename)
+        return {"error": str(e)}
+
+@app.get("/api/tts")
+async def tts_models():
+    tts_models, vocoders_models = await list_models()
+    return {"models": tts_models, "vocoders": vocoders_models}
 
 @app.post("/api/tts")
 async def text_to_speech(textToSpeech: Text):
-    print(textToSpeech.text)
     filename = await tts(textToSpeech.text, textToSpeech.user)
     return {"filename": filename}
 
