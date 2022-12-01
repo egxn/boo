@@ -1,3 +1,7 @@
+GET http://localhost:5000/api/healthcheck
+
+###
+
 GET http://localhost:5000/api/tts
 
 ###
@@ -6,26 +10,22 @@ content-type: application/json
 
 {
     "authorization_token": "token",
-    "user": "user",
+    "user": 1312,
     "text": "Hello cats from the outer outer space"
 }
 
 ###
 
-GET http://localhost:5000/audios/
-
-###
 POST http://localhost:5000/api/stt
 content-type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
+title: audio.test.wav
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 
-Content-Disposition: form-data; name="file"; filename="1.wav"
-
+Content-Disposition: name="file"; filename="audio.test.wav"
 Content-Type: audio/wav
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
-
+< ./audio.test.wav
 ###
-
