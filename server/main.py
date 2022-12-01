@@ -51,7 +51,7 @@ async def speech_to_text(file: UploadFile = File(...)):
         audio.write(content)
         audio.close()
     try:
-        queue.enqueue(stt, file.filename, on_success=success_stt, on_failure=error_stt)
+        queue.enqueue(stt_task, file.filename, on_failure=error_queue)
         return {"message": "OK"}
     except Exception as e:
         os.remove(file.filename)
@@ -64,9 +64,8 @@ async def tts_models():
 
 @app.post("/api/tts")
 async def text_to_speech(textToSpeech: Text):
-    queue.enqueue(tts, args=(textToSpeech.text, textToSpeech.user), on_success=success_tts, on_failure=error_tts)
+    queue.enqueue(tss_task, args=(textToSpeech.text, textToSpeech.user), on_failure=error_queue)
     return {"message": "OK"}
-
 
 @app.websocket("/ws/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: int):
@@ -78,20 +77,15 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
     except WebSocketDisconnect:
         manager.disconnect(websocket, client_id)
 
-async def success_tts(job, connection, result):
-    client_id, filename = result
-    print('TTS success', client_id, filename)
+async def tss_task(text, user):
+    client_id, filename = await tts(text, user)
     await manager.send_text_update(client_id, filename)
 
-def error_tts(job, connection, type, value, traceback):
-    print('TTS error', value)
+async def stt_task(filename):
+    stt(filename)
 
-async def success_stt(job, connection, result):
-    client_id, text = result
-    await manager.send_text_update(client_id, text)
-
-def error_stt(job, connection, type, value, traceback):
-    print('STT error', value)
+def error_queue(job, connection, type, value, traceback):
+    print('error', value)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=5000)

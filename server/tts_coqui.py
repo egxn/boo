@@ -81,7 +81,7 @@ async def tts(text: str, prefix="", model=None, speaker_id=None):
     Returns:
         filename (str): output filename
     """
-    filename = prefix + str(int(time.time())) + '.coqui.wav'
+    filename = prefix + "_" +str(int(time.time())) + '.coqui.wav'
     model = get_default_model() if model is None else model
     speaker_id = get_default_speaker_id() if speaker_id is None else speaker_id
     proc = await asyncio.create_subprocess_exec('tts', 

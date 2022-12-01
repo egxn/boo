@@ -10,6 +10,7 @@
       <input type="text" id="messageText" autocomplete="off" />
       <button>Send</button>
     </form>
+    <button onclick="tts()">TTS</button>
     <ul id='messages'>
     </ul>
     <script>
@@ -28,6 +29,19 @@
         ws.send(input.value)
         input.value = ''
         event.preventDefault()
+      }
+      function tts() {
+        fetch('http://localhost:5000/tts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            text: 'Hello cats from the world',
+            client_id: client_id,
+            authorization_token: 'token',
+          })
+        })
       }
     </script>
   </body>

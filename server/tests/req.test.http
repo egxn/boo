@@ -10,7 +10,7 @@ content-type: application/json
 
 {
     "authorization_token": "token",
-    "user": 1312,
+    "user": "1312",
     "text": "Hello cats from the outer outer space"
 }
 
