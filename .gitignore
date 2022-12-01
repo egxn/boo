@@ -1,4 +1,6 @@
 server/__pycache__
 server/.env
-server/files
+server/files_tts
+server/files_stt
 server/*.http
+*.rdb

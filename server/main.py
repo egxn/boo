@@ -1,16 +1,15 @@
 import os
 import uvicorn
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from typing import Union
 from pydantic import BaseModel
 from redis import Redis
 from rq import Queue
 
-from queue_callbacks import success_tts, error_tts, success_stt, error_stt
 from tts_coqui import list_models, tts
 from stt_whisper import stt
-
+from wsockets import ConnectionManager
 
 class User(BaseModel):
     authorization_token: str
@@ -37,11 +36,11 @@ class TextToText(User):
 
 redis_conn = Redis()
 queue = Queue(connection=redis_conn)
-
 app = FastAPI()
-app.mount("/audios", StaticFiles(directory="files_tss"), name="audios")
+app.mount("/audios", StaticFiles(directory="files_tts"), name="audios")
+manager = ConnectionManager()
 
-@app.get("/api/healtcheck")
+@app.get("/api/healthcheck")
 async def root():
     return {"message": "OK"}
 
@@ -68,29 +67,31 @@ async def text_to_speech(textToSpeech: Text):
     queue.enqueue(tts, args=(textToSpeech.text, textToSpeech.user), on_success=success_tts, on_failure=error_tts)
     return {"message": "OK"}
 
-@app.post("api/analyze/")
-async def analyze(text: Text):
-    pass
 
-@app.post("api/complete/")
-async def complete(text: Text):
-    pass
+@app.websocket("/ws/{client_id}")
+async def websocket_endpoint(websocket: WebSocket, client_id: int):
+    await manager.connect(websocket, client_id)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            await manager.send_text_update(client_id, data)
+    except WebSocketDisconnect:
+        manager.disconnect(websocket, client_id)
 
-@app.post("api/prompt/")
-async def prompt(prompt: Prompt):
-    pass
+async def success_tts(job, connection, result):
+    client_id, filename = result
+    print('TTS success', client_id, filename)
+    await manager.send_text_update(client_id, filename)
 
-@app.post("api/summarize/")
-async def summarize(text: Text):
-    pass
+def error_tts(job, connection, type, value, traceback):
+    print('TTS error', value)
 
-@app.post("api/translate/")
-async def translate(translate: TextToText):
-    pass
+async def success_stt(job, connection, result):
+    client_id, text = result
+    await manager.send_text_update(client_id, text)
 
-@app.post("api/diff/")
-async def diff(textA: Text, textB: Text):
-    pass
+def error_stt(job, connection, type, value, traceback):
+    print('STT error', value)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=5000)

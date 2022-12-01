@@ -7,4 +7,5 @@ rq
 requests
 sounddevice
 soundfile
+websockets
 whisper

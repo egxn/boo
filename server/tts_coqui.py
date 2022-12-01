@@ -87,7 +87,7 @@ async def tts(text: str, prefix="", model=None, speaker_id=None):
     proc = await asyncio.create_subprocess_exec('tts', 
         args['text'], text,
         args['model_name'], model,
-        args['out_path'], './files/' + filename,
+        args['out_path'], 'files_tts/' + filename,
         args['use_cuda'], "true",
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE)
@@ -98,7 +98,7 @@ async def tts(text: str, prefix="", model=None, speaker_id=None):
     else:
         print(f'[{stdout.decode()}]')
         print(filename)
-        return filename
+        return (prefix, filename)
 
 async def main():
     await tts('Hello cats of the world')
