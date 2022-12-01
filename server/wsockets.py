@@ -14,5 +14,5 @@ class ConnectionManager:
 
     async def send_text_update(self, client_id: str, message: str):
         for (client, websocket) in self.active_connections:
-            if client == client_id:
+            if str(client) == str(client_id):
                 await websocket.send_text(message)
