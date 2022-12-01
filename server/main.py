@@ -2,10 +2,11 @@ import os
 import uvicorn
 from fastapi import FastAPI, File, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
-from typing import Union
 from pydantic import BaseModel
 from redis import Redis
+from requests import post
 from rq import Queue
+from typing import Union
 
 from tts_coqui import list_models, tts
 from stt_whisper import stt
@@ -67,6 +68,11 @@ async def text_to_speech(textToSpeech: Text):
     queue.enqueue(tss_task, args=(textToSpeech.text, textToSpeech.user), on_failure=error_queue)
     return {"message": "OK"}
 
+@app.post("/api/hook")
+async def send_message(text: Text):
+    await manager.send_text_update(text.user, text.text)
+    return {"message": "OK"}
+
 @app.websocket("/ws/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: int):
     await manager.connect(websocket, client_id)
@@ -79,7 +85,9 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
 
 async def tss_task(text, user):
     client_id, filename = await tts(text, user)
-    await manager.send_text_update(client_id, filename)
+    data = {'text': filename, 'user': client_id, 'authorization_token': 'token'}
+    post('http://localhost:5000/api/hook', json=data)
+
 
 async def stt_task(filename):
     stt(filename)
