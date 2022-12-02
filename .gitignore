@@ -3,4 +3,28 @@ server/.env
 server/files_tts
 server/files_stt
 server/*.http
+
+*.todo
 *.rdb
+
+# Logs
+client/logs
+client/*.log
+client/yarn-debug.log*
+client/yarn-error.log*
+
+client/node_modules
+client/dist
+client/dist-ssr
+client/*.local
+
+# Editor directories and files
+client/.vscode/*
+client/!.vscode/extensions.json
+client/.idea
+client/.DS_Store
+client/*.suo
+client/*.ntvs*
+client/*.njsproj
+client/*.sln
+client/*.sw?

@@ -15,6 +15,9 @@ args = {
   "text": "--text",
 }
 
+def get_use_cuda():
+    return getenv("USE_CUDA")
+
 def get_default_model():
     return getenv("COQUI_TTS_MODEL_NAME")
 
@@ -29,8 +32,7 @@ async def list_models():
     """
     proc = await asyncio.create_subprocess_exec('tts', 
         args['list_models'],
-        args['use_cuda'], "true",
-        
+        args['use_cuda'], get_use_cuda(),
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE)
     stdout, stderr = await proc.communicate()
@@ -60,7 +62,7 @@ async def list_speakers_id(model=None):
     proc = await asyncio.create_subprocess_exec('tts',
         args['model_name'], model,
         args['list_speaker_idxs'],
-        args['use_cuda'], "true",
+        args['use_cuda'], get_use_cuda(),
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE)
     stdout, stderr = await proc.communicate()
@@ -88,7 +90,7 @@ async def tts(text: str, prefix="", model=None, speaker_id=None):
         args['text'], text,
         args['model_name'], model,
         args['out_path'], 'files_tts/' + filename,
-        args['use_cuda'], "true",
+        args['use_cuda'], get_use_cuda(),
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE)
     stdout, stderr = await proc.communicate()

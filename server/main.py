@@ -2,6 +2,7 @@ import os
 import uvicorn
 from fastapi import Body, FastAPI, File, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from redis import Redis
 from rq import Queue
@@ -18,9 +19,24 @@ class Text(User):
 
 redis_conn = Redis()
 queue = Queue(connection=redis_conn)
-app = FastAPI()
-app.mount("/audios", StaticFiles(directory="files_tts"), name="audios")
 manager = ConnectionManager()
+app = FastAPI()
+
+origins = [
+    "http://localhost:5000",
+    "http://localhost:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.mount("/audios", StaticFiles(directory="files_tts"), name="audios")
+
 
 @app.get("/api/healthcheck")
 async def root():
