@@ -9,7 +9,6 @@ POST http://localhost:5000/api/tts HTTP/1.1
 content-type: application/json
 
 {
-    "authorization_token": "token",
     "user": "1312",
     "text": "Hello cats from the outer outer space"
 }

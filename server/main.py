@@ -1,39 +1,20 @@
 import os
 import uvicorn
-from fastapi import FastAPI, File, UploadFile, WebSocket, WebSocketDisconnect
+from fastapi import Body, FastAPI, File, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from redis import Redis
-from requests import post
 from rq import Queue
-from typing import Union
 
-from tts_coqui import list_models, tts
-from stt_whisper import stt
+from tasks import stt_task, tss_task, error_queue
+from tts_coqui import list_models
 from wsockets import ConnectionManager
 
 class User(BaseModel):
-    authorization_token: str
     user: str
-
-
-class Prompt(User):
-    prompt: str
-
-
-class Speech(User, UploadFile):
-    speech: str
-
 
 class Text(User):
     text: str
-
-
-class TextToText(User):
-    lang_source: Union[str, None]
-    lang_target: Union[str, None]
-    text: str
-
 
 redis_conn = Redis()
 queue = Queue(connection=redis_conn)
@@ -45,14 +26,16 @@ manager = ConnectionManager()
 async def root():
     return {"message": "OK"}
 
-@app.post("/api/stt")
-async def speech_to_text(file: UploadFile = File(...)):
-    with open('files_stt/' + file.filename, 'wb') as audio:
+@app.post("/api/stt/{user}")
+async def speech_to_text(user:str, file: UploadFile = File(...)):
+    filename = 'files_stt/' + file.filename
+    print(filename)
+    with open(filename, 'wb') as audio:
         content = await file.read()
         audio.write(content)
         audio.close()
     try:
-        queue.enqueue(stt_task, file.filename, on_failure=error_queue)
+        queue.enqueue(stt_task, filename, user, on_failure=error_queue)
         return {"message": "OK"}
     except Exception as e:
         os.remove(file.filename)
@@ -83,17 +66,6 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
     except WebSocketDisconnect:
         manager.disconnect(websocket, client_id)
 
-async def tss_task(text, user):
-    client_id, filename = await tts(text, user)
-    data = {'text': filename, 'user': client_id, 'authorization_token': 'token'}
-    post('http://localhost:5000/api/hook', json=data)
-
-
-async def stt_task(filename):
-    stt(filename)
-
-def error_queue(job, connection, type, value, traceback):
-    print('error', value)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=5000)

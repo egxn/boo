@@ -11,6 +11,7 @@ def stt(audio_file, model_name=None):
   model_name = get_default_model() if model_name is None else model_name
   model = whisper.load_model(model_name)
   if audio_file is not None:
+      print("Processing audio file: %s" % audio_file)
       result = model.transcribe(audio_file)
       return result["text"]
   return None
