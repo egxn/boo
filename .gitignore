@@ -1,5 +1,4 @@
 server/__pycache__
-server/.env
 server/files_tts
 server/files_stt
 server/*.http
@@ -8,23 +7,23 @@ server/*.http
 *.rdb
 
 # Logs
-client/logs
-client/*.log
-client/yarn-debug.log*
-client/yarn-error.log*
+clients/chat-test/logs
+clients/chat-test/*.log
+clients/chat-test/yarn-debug.log*
+clients/chat-test/yarn-error.log*
 
-client/node_modules
-client/dist
-client/dist-ssr
-client/*.local
+clients/chat-test/node_modules
+clients/chat-test/dist
+clients/chat-test/dist-ssr
+clients/chat-test/*.local
 
 # Editor directories and files
-client/.vscode/*
-client/!.vscode/extensions.json
-client/.idea
-client/.DS_Store
-client/*.suo
-client/*.ntvs*
-client/*.njsproj
-client/*.sln
-client/*.sw?
+clients/.vscode/*
+clients/!.vscode/extensions.json
+clients/.idea
+clients/.DS_Store
+clients/*.suo
+clients/*.ntvs*
+clients/*.njsproj
+clients/*.sln
+clients/*.sw?

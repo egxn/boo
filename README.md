@@ -1,6 +1,6 @@
 # 🙈 Boo
 
-Boo wraps tts and sst on a simple REST API to make it easy to use them in desktop (and cloud soon) apps.
+Boo wraps tts and sst on a simple REST API to make it easy to use them in desktop apps.
 
 # Requirements
 
@@ -11,11 +11,12 @@ Boo wraps tts and sst on a simple REST API to make it easy to use them in deskto
 
 Additional requirements are listed in the `requirements.txt` file.
 
-# Development
+# Server Development
 
 > cd server
 > redis-server
 > rq worker --with-scheduler
+> python main.py
 
 
  
