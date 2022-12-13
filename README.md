@@ -1,4 +1,4 @@
-# 🙈 Boo
+# 🐯 Boo
 
 Boo wraps tts and sst on a simple REST API to make it easy to use them in desktop apps.
 

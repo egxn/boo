@@ -16,7 +16,7 @@ args = {
 }
 
 def get_use_cuda():
-    return getenv("USE_CUDA")
+    return getenv("USE_CUDA") == 1
 
 def get_default_model():
     return getenv("COQUI_TTS_MODEL_NAME")
@@ -30,9 +30,14 @@ async def list_models():
     Returns:
         ([tts_models], [vocoder_models])
     """
-    proc = await asyncio.create_subprocess_exec('tts', 
+    cmd = [
         args['list_models'],
-        args['use_cuda'], get_use_cuda(),
+    ]
+    if (get_use_cuda()):
+        cmd.append(args['use_cuda'])
+        cmd.append(get_use_cuda())
+    proc = await asyncio.create_subprocess_exec('tts',
+        *cmd,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE)
     stdout, stderr = await proc.communicate()
@@ -52,17 +57,21 @@ async def list_models():
 
 async def list_speakers_id(model=None):
     """List all available speakers id
-    
     Args:
         model (str): model to use
     Returns:
         [speakers_id]
     """
-    model = get_default_model() if model is None else model
-    proc = await asyncio.create_subprocess_exec('tts',
+    cmd = [
         args['model_name'], model,
         args['list_speaker_idxs'],
-        args['use_cuda'], get_use_cuda(),
+    ]
+    if (get_use_cuda()):
+        cmd.append(args['use_cuda'])
+        cmd.append(get_use_cuda())
+    model = get_default_model() if model is None else model
+    proc = await asyncio.create_subprocess_exec('tts',
+        *cmd,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE)
     stdout, stderr = await proc.communicate()
@@ -86,11 +95,16 @@ async def tts(text: str, prefix="", model=None, speaker_id=None):
     filename = prefix + "_" +str(int(time.time())) + '.coqui.wav'
     model = get_default_model() if model is None else model
     speaker_id = get_default_speaker_id() if speaker_id is None else speaker_id
-    proc = await asyncio.create_subprocess_exec('tts', 
+    cmd = [
         args['text'], text,
         args['model_name'], model,
         args['out_path'], 'files_tts/' + filename,
-        args['use_cuda'], get_use_cuda(),
+    ]
+    if (get_use_cuda()):
+        cmd.append(args['use_cuda'])
+        cmd.append(get_use_cuda())
+    proc = await asyncio.create_subprocess_exec('tts',
+        *cmd,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE)
     stdout, stderr = await proc.communicate()

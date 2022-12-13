@@ -1,11 +1,13 @@
 coqui
 fastapi
 jiwer
+python-dotenv
 python-multipart
 redis
 rq
 requests
 sounddevice
 soundfile
+uvicorn
 websockets
 whisper
