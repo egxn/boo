@@ -6,13 +6,13 @@ url_hook = 'http://localhost:5000/api/hook'
 
 async def tss_task(text, user):
     client_id, filename = await tts(text, user)
-    data = {'text': filename, 'user': client_id }
+    data = {'content': filename, 'user': client_id, 'content_type': 'url' }
     post(url_hook, json=data)
 
 
 async def stt_task(filename, user):
     text = stt(filename)
-    data = {'text': text, 'user': user }
+    data = {'content': text, 'user': user, 'content_type': 'text' }
     post(url_hook, json=data)
 
 def error_queue(job, connection, type, value, traceback):

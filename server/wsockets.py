@@ -12,7 +12,7 @@ class ConnectionManager:
     def disconnect(self, websocket: WebSocket, client_id: str):
         self.active_connections.remove((client_id, websocket))
 
-    async def send_text_update(self, client_id: str, message: str):
+    async def send_text_update(self, client_id: str, message: str, message_type: str):
         for (client, websocket) in self.active_connections:
             if str(client) == str(client_id):
-                await websocket.send_text(message)
+                await websocket.send_text(message_type + " ::: " + message)

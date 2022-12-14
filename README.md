@@ -18,5 +18,10 @@ Additional requirements are listed in the `requirements.txt` file.
 > rq worker --with-scheduler
 > python main.py
 
+# Client use
+
+1. Create a new websocket connection to `ws://localhost:5000/ws/{client_id}`
+2. Consume the API (using the same the client_id).
+3. The tasks queued using the REST API and the outcome will be sent using the websocket.
 
  

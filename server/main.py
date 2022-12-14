@@ -17,6 +17,10 @@ class User(BaseModel):
 class Text(User):
     text: str
 
+class HookPayload(User):
+    content: str
+    content_type: str
+
 redis_conn = Redis()
 queue = Queue(connection=redis_conn)
 manager = ConnectionManager()
@@ -68,8 +72,8 @@ async def text_to_speech(textToSpeech: Text):
     return {"message": "OK"}
 
 @app.post("/api/hook")
-async def send_message(text: Text):
-    await manager.send_text_update(text.user, text.text)
+async def send_message(payload: HookPayload):
+    await manager.send_text_update(payload.user, payload.content, payload.content_type)
     return {"message": "OK"}
 
 @app.websocket("/ws/{client_id}")
