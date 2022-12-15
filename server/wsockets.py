@@ -1,5 +1,6 @@
 from typing import List
 from fastapi import WebSocket
+from json import dumps
 
 class ConnectionManager:
     def __init__(self):
@@ -12,7 +13,7 @@ class ConnectionManager:
     def disconnect(self, websocket: WebSocket, client_id: str):
         self.active_connections.remove((client_id, websocket))
 
-    async def send_text_update(self, client_id: str, message: str, message_type: str):
+    async def send_text_update(self, client_id: str, content: str, content_type: str, id: str):
         for (client, websocket) in self.active_connections:
             if str(client) == str(client_id):
-                await websocket.send_text(message_type + " ::: " + message)
+                await websocket.send_text(dumps({'id': id, 'content_type': content_type, 'content': content}))

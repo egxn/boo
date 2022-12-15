@@ -10,6 +10,7 @@ from rq import Queue
 from tasks import stt_task, tss_task, error_queue
 from tts_coqui import list_models
 from wsockets import ConnectionManager
+from utils import create_id
 
 class User(BaseModel):
     user: str
@@ -18,6 +19,7 @@ class Text(User):
     text: str
 
 class HookPayload(User):
+    id: str
     content: str
     content_type: str
 
@@ -41,22 +43,21 @@ app.add_middleware(
 
 app.mount("/audios", StaticFiles(directory="files_tts"), name="audios")
 
-
 @app.get("/api/healthcheck")
 async def root():
     return {"message": "OK"}
 
-@app.post("/api/stt/{user}")
+@app.post("/api/stt/{user}", status_code=201)
 async def speech_to_text(user:str, file: UploadFile = File(...)):
     filename = 'files_stt/' + file.filename
-    print(filename)
     with open(filename, 'wb') as audio:
         content = await file.read()
         audio.write(content)
         audio.close()
     try:
-        queue.enqueue(stt_task, filename, user, on_failure=error_queue)
-        return {"message": "OK"}
+        id = create_id()
+        queue.enqueue(stt_task, args=(filename, user, id), on_failure=error_queue)
+        return {"message": "OK", "id": id}
     except Exception as e:
         os.remove(file.filename)
         return {"error": str(e)}
@@ -66,15 +67,16 @@ async def tts_models():
     tts_models, vocoders_models = await list_models()
     return {"models": tts_models, "vocoders": vocoders_models}
 
-@app.post("/api/tts")
+@app.post("/api/tts", status_code=201)
 async def text_to_speech(textToSpeech: Text):
-    queue.enqueue(tss_task, args=(textToSpeech.text, textToSpeech.user), on_failure=error_queue)
-    return {"message": "OK"}
+    id = create_id()
+    queue.enqueue(tss_task, args=(textToSpeech.text, textToSpeech.user, id), on_failure=error_queue)
+    return {"message": "OK", "id": id}
 
 @app.post("/api/hook")
 async def send_message(payload: HookPayload):
-    await manager.send_text_update(payload.user, payload.content, payload.content_type)
-    return {"message": "OK"}
+    await manager.send_text_update(payload.user, payload.content, payload.content_type, payload.id)
+    return {"message": "OK", "id": payload.id}
 
 @app.websocket("/ws/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: int):
