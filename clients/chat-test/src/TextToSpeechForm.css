@@ -1,0 +1,40 @@
+.message-form {
+  display: flex;
+  align-items: center;
+  align-self: flex-end;
+  width: 100%;
+}
+
+.message-input {
+  flex: 1;
+  padding: 0.5em;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 1em;
+  margin: 12px;
+}
+
+.send-button {
+  background-color: #0095ff;
+  border-radius: 3px;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1em;
+  height: 40px;
+  margin: 12px;
+  padding: 0.5em;
+}
+
+.send-button:hover {
+  background-color: #008ae6;
+}
+
+.send-button:active {
+  background-color: #007acc;
+}
+
+.send-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
