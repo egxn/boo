@@ -5,14 +5,14 @@ from stt_whisper import stt
 URL_HOOK = 'http://localhost:5000/api/hook'
 API_DOMAIN = 'localhost:5000'
 
-async def tss_task(text, user, id):
+async def tts_task(text, user, id):
     client_id, filename = await tts(text, user)
     data = {
         'id': id ,
         'user': client_id,
         'url': 'http://' + API_DOMAIN + '/audios/' + filename,
         'text': text,
-        'content_type': 'tss'
+        'content_type': 'tts'
     }
     post(URL_HOOK, json=data)
 

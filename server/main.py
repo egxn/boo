@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from redis import Redis
 from rq import Queue
 
-from tasks import stt_task, tss_task, error_queue
+from tasks import stt_task, tts_task, error_queue
 from tts_coqui import list_models
 from wsockets import ConnectionManager
 from utils import create_id
@@ -72,7 +72,7 @@ async def tts_models():
 @app.post("/api/tts", status_code=201)
 async def text_to_speech(textToSpeech: Text):
     id = create_id()
-    queue.enqueue(tss_task, args=(textToSpeech.text, textToSpeech.user, id), on_failure=error_queue)
+    queue.enqueue(tts_task, args=(textToSpeech.text, textToSpeech.user, id), on_failure=error_queue)
     return {"message": "OK", "id": id}
 
 @app.post("/api/hook")

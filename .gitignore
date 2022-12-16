@@ -7,15 +7,15 @@ server/*.http
 *.rdb
 
 # Logs
-clients/chat-test/logs
-clients/chat-test/*.log
-clients/chat-test/yarn-debug.log*
-clients/chat-test/yarn-error.log*
+clients/chat/logs
+clients/chat/*.log
+clients/chat/yarn-debug.log*
+clients/chat/yarn-error.log*
 
-clients/chat-test/node_modules
-clients/chat-test/dist
-clients/chat-test/dist-ssr
-clients/chat-test/*.local
+clients/chat/node_modules
+clients/chat/dist
+clients/chat/dist-ssr
+clients/chat/*.local
 
 # Editor directories and files
 clients/.vscode/*
