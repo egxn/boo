@@ -1,33 +1,42 @@
-import AudioRecorder from './SpeechToTextButton';
+import SpeechToTextButton from './SpeechToTextButton';
 import TextToSpeechForm from './TextToSpeechForm';
-import { textToSpeech } from './services';
+import { speechToText, textToSpeech } from './services';
 import useWsMessages from './useWsMessages';
 import './Chat.css';
 
 type Message = {
   id?: number;
-  content?: string;
+  url?: string;
+  text?: string;
   type: string;
-  text: string;
 };
 
 const Message = ({ message }: { message: Message }) => {
+  const Loading = () => (<li className='loading'> 🔮 </li>);
+
   return (
     <>
-      <li className="text-message">
-        {message.text}
-      </li>
-      { message.content && (
-        <li className="audio-message">
-          <audio src={message.content} controls />
+      { message.text ? (
+        <li className="text-message">
+          {message.text}
         </li>
-      )}
+      ): <Loading />}
+      { message.url ? (
+        <li className="audio-message">
+          <audio src={message.url} controls />
+        </li>
+      ): <Loading />}
     </>
   );
 }
 
 const Chat = () => {
   const [messages, setMessages] = useWsMessages();
+
+  const stt = async (content: string) => {
+    const data = await speechToText(content);
+    setMessages([...messages, { id: data.id, type: 'audio', url: content, text: '' }]);
+  }
 
   const tts = async (text: string) => {
     const data = await textToSpeech(text);
@@ -39,7 +48,7 @@ const Chat = () => {
       <ul className="messages">
         {messages.map((message, index) => <Message key={index} message={message} />)}
       </ul>
-      <AudioRecorder stt={()=>{}}/>
+      <SpeechToTextButton stt={stt}/>
       <TextToSpeechForm tts={tts} />
     </div>
   );

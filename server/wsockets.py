@@ -13,7 +13,7 @@ class ConnectionManager:
     def disconnect(self, websocket: WebSocket, client_id: str):
         self.active_connections.remove((client_id, websocket))
 
-    async def send_text_update(self, client_id: str, content: str, content_type: str, id: str):
+    async def send_text_update(self, id: str, client_id: str, url: str, text: str, content_type: str):
         for (client, websocket) in self.active_connections:
             if str(client) == str(client_id):
-                await websocket.send_text(dumps({'id': id, 'content_type': content_type, 'content': content}))
+                await websocket.send_text(dumps({'id': id, 'text': text, 'url': url, 'content_type': content_type}))

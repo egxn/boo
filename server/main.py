@@ -20,7 +20,8 @@ class Text(User):
 
 class HookPayload(User):
     id: str
-    content: str
+    url: str
+    text: str
     content_type: str
 
 redis_conn = Redis()
@@ -49,6 +50,7 @@ async def root():
 
 @app.post("/api/stt/{user}", status_code=201)
 async def speech_to_text(user:str, file: UploadFile = File(...)):
+    print(file)
     filename = 'files_stt/' + file.filename
     with open(filename, 'wb') as audio:
         content = await file.read()
@@ -75,7 +77,7 @@ async def text_to_speech(textToSpeech: Text):
 
 @app.post("/api/hook")
 async def send_message(payload: HookPayload):
-    await manager.send_text_update(payload.user, payload.content, payload.content_type, payload.id)
+    await manager.send_text_update(payload.id, payload.user, payload.url, payload.text, payload.content_type)
     return {"message": "OK", "id": payload.id}
 
 @app.websocket("/ws/{client_id}")

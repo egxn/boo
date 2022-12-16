@@ -1,8 +1,9 @@
 import useRecorder from './useRecorder';
 import './SpeechToTextButton.css';
 
-const SpeechToTextButton = ({ stt }: { stt: () => void }) => {
+const SpeechToTextButton = ({ stt }: { stt: (audioUrl: string) => void }) => {
   const [audioURL, isRecording, startRecording, stopRecording, deleteAudio] = useRecorder();
+
 
   return (
     <div className='speech-to-text'>
@@ -18,7 +19,7 @@ const SpeechToTextButton = ({ stt }: { stt: () => void }) => {
           </div>
           <button
             className='btn'
-            onClick={stt}>
+            onClick={() => stt(audioURL)}>
           🔮
           </button>
         </>

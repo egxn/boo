@@ -2,15 +2,14 @@ import { useEffect, useState } from "react";
 
 type Message = {
   id?: number;
-  content?: string;
+  url?: string;
+  text?: string;
   type: string;
-  text: string;
 };
 
 const useWsMessages = (): [Message[], (msgs: Message[]) => void] => {
   const API_DOMAIN = 'localhost:5000';
   const WS = `ws://${API_DOMAIN}/ws`;
-  const AUDIOS_URL = `http://${API_DOMAIN}/audios`;
 
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -19,7 +18,7 @@ const useWsMessages = (): [Message[], (msgs: Message[]) => void] => {
     ws.onmessage = (event) => {
       const msg = JSON.parse(event.data);
       const msgs = messages.map((message) => message.id === msg.id 
-        ? { ...message, content: `${AUDIOS_URL}/${msg.content}` } 
+        ? { ...message, ...msg }
         : message
       );
 
