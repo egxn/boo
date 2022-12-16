@@ -3,6 +3,8 @@ const API = `http://${API_DOMAIN}/api`
 const WS = `ws://${API_DOMAIN}/ws`
 const USER_ID = '1312'
 
+console.log('Stt and Tts loaded')
+
 const textToSpeech = async (message) => {
   try {
     const response = await fetch(`${API}/tts`, {
@@ -65,9 +67,12 @@ async function requestRecorder() {
 const ws = new WebSocket(`${WS}/1312`)
 ws.onmessage = (event) => {
   const { id, content_type: contentType, text, url } = JSON.parse(event.data)
+  console.log(id, contentType, text, url)
   if (contentType === 'stt') {
-    const input =  document.querySelector('[data-id="root"]')
-    input.value = text
+    const textarea =  document.getElementsByTagName('textarea')
+    if (textarea[0]) {
+      textarea[0].value = text
+    }
   } else if (contentType === 'tts') {
     const el = document.querySelector(`[data-ttsid="${id}"]`)
     if (el) {
@@ -87,14 +92,19 @@ ws.onerror = (error) => {
   console.error(error)
 }
 
-const inputBox = document.querySelector('.py-2')
+const textarea = document.querySelector('.py-2')
 const recordButton = document.createElement('button')
 
 recordButton.style.width = '100px'
 recordButton.style.alignSelf = 'center'
 
 recordButton.innerHTML = '🎙'
-inputBox.appendChild(recordButton)
+
+if (textarea) {
+  textarea.appendChild(recordButton)
+}
+
+
 
 const state = {
   audioURL: null,
@@ -143,12 +153,3 @@ const callback = async (mutationList, observer) => {
 const observer = new MutationObserver(callback)
 observer.observe(targetNode, config)
 
-// observer.disconnect();
-
-// const audio = document.createElement("audio");
-// audio.controls = true;
-// const audioURL = window.URL.createObjectURL(blob);
-// audio.src = audioURL;
-// const audio = document.createElement('audio')
-// audio.controls = true
-// audio.src = text

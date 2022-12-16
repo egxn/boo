@@ -50,7 +50,6 @@ async def root():
 
 @app.post("/api/stt/{user}", status_code=201)
 async def speech_to_text(user:str, file: UploadFile = File(...)):
-    print(file)
     filename = 'files_stt/' + file.filename
     with open(filename, 'wb') as audio:
         content = await file.read()
