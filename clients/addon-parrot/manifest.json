@@ -1,0 +1,21 @@
+{
+  "manifest_version": 2,
+  "name": "Parrot",
+  "version": "1.0",
+  "description": "Text to speech from your browser",
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*/*"
+      ],
+      "js": [
+        "parrot.js"
+      ]
+    }
+  ],
+  "permissions": [
+    "<all_urls>",
+    "webRequest",
+    "http://localhost:5000/api/*"
+  ]
+}

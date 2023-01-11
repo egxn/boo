@@ -16,7 +16,7 @@ args = {
 }
 
 def get_use_cuda():
-    return getenv("USE_CUDA") == 1
+    return getenv("USE_CUDA") == '1'
 
 def get_default_model():
     return getenv("COQUI_TTS_MODEL_NAME")
@@ -35,7 +35,7 @@ async def list_models():
     ]
     if (get_use_cuda()):
         cmd.append(args['use_cuda'])
-        cmd.append(get_use_cuda())
+        cmd.append('true')
     proc = await asyncio.create_subprocess_exec('tts',
         *cmd,
         stdout=asyncio.subprocess.PIPE,
@@ -68,7 +68,7 @@ async def list_speakers_id(model=None):
     ]
     if (get_use_cuda()):
         cmd.append(args['use_cuda'])
-        cmd.append(get_use_cuda())
+        cmd.append('true')
     model = get_default_model() if model is None else model
     proc = await asyncio.create_subprocess_exec('tts',
         *cmd,
@@ -92,7 +92,7 @@ async def tts(text: str, prefix="", model=None, speaker_id=None):
     Returns:
         filename (str): output filename
     """
-    filename = prefix + "_" +str(int(time.time())) + '.coqui.wav'
+    filename = prefix + "_" + str(int(time.time())) + '.coqui.wav'
     model = get_default_model() if model is None else model
     speaker_id = get_default_speaker_id() if speaker_id is None else speaker_id
     cmd = [
@@ -100,9 +100,10 @@ async def tts(text: str, prefix="", model=None, speaker_id=None):
         args['model_name'], model,
         args['out_path'], 'files_tts/' + filename,
     ]
+
     if (get_use_cuda()):
         cmd.append(args['use_cuda'])
-        cmd.append(get_use_cuda())
+        cmd.append('true')
     proc = await asyncio.create_subprocess_exec('tts',
         *cmd,
         stdout=asyncio.subprocess.PIPE,

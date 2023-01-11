@@ -3,8 +3,6 @@ const API = `http://${API_DOMAIN}/api`
 const WS = `ws://${API_DOMAIN}/ws`
 const USER_ID = '1312'
 
-console.log('Stt and Tts loaded')
-
 const textToSpeech = async (message) => {
   try {
     const response = await fetch(`${API}/tts`, {
@@ -67,7 +65,7 @@ async function requestRecorder() {
 const ws = new WebSocket(`${WS}/1312`)
 ws.onmessage = (event) => {
   const { id, content_type: contentType, text, url } = JSON.parse(event.data)
-  console.log(id, contentType, text, url)
+
   if (contentType === 'stt') {
     const textarea =  document.getElementsByTagName('textarea')
     if (textarea[0]) {
@@ -75,7 +73,7 @@ ws.onmessage = (event) => {
     }
   } else if (contentType === 'tts') {
     const el = document.querySelector(`[data-ttsid="${id}"]`)
-    if (el) {
+    if (el && el.querySelector('audio') === null ) {
       el.style.outline = '1px solid blue'
       const audio = document.createElement('audio')
       audio.style.width = '100%'
@@ -103,8 +101,6 @@ recordButton.innerHTML = '🎙'
 if (textarea) {
   textarea.appendChild(recordButton)
 }
-
-
 
 const state = {
   audioURL: null,
@@ -139,6 +135,7 @@ const callback = async (mutationList, observer) => {
             || p.innerText.endsWith('?')
             || p.innerText.endsWith('...')
             || p.innerText.endsWith(':')
+            || p.innerText.endsWith('."')
           )
         ) {
           const data = await textToSpeech(p.innerText)

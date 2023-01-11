@@ -1,0 +1,21 @@
+{
+  "manifest_version": 2,
+  "name": "Boo",
+  "version": "1.0",
+  "description": "Text to speech and speech to text",
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*/*"
+      ],
+      "js": [
+        "chatGPT.js"
+      ]
+    }
+  ],
+  "permissions": [
+    "<all_urls>",
+    "webRequest",
+    "http://localhost:5000/api/*"
+  ]
+}

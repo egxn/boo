@@ -5,7 +5,7 @@
   "description": "Text to speech and speech to text for chatGPT",
   "content_scripts": [{
       "matches": ["*://chat.openai.com/*"],
-      "js": ["boo.js"]
+      "js": ["chatGPT.js"]
     }
   ],
   "permissions": [
