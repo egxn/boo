@@ -32,6 +32,7 @@ ws.onmessage = (event) => {
       const audio = document.createElement('audio')
       audio.style.width = '100%'
       audio.controls = true
+      audio.playbackRate = 1.5
       audio.src = url
       el.appendChild(audio)
     }
@@ -49,6 +50,10 @@ ps.forEach((p) => {
   const btn = document.createElement('button')
   btn.innerText = '🦜'
   btn.style.float = 'right'
+  btn.style.marginRight = '-20px'
+  btn.style.backgroundColor = 'blueviolet'
+  btn.style.padding = '2px'
+  btn.style.cursor = 'pointer'
   btn.addEventListener('click', async () => {
     if (p.innerText !== '') {
       const { id } = await textToSpeech(p.innerText.replace('🦜', ''))
