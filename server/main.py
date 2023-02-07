@@ -10,13 +10,17 @@ from rq import Queue
 from tasks import stt_task, tts_task, error_queue
 from tts_coqui import list_models
 from wsockets import ConnectionManager
-from utils import create_id
+from utils import create_id, calculate_wer
 
 class User(BaseModel):
     user: str
 
 class Text(User):
     text: str
+
+class WerPayload(BaseModel):
+    reference: str
+    hypothesis: str
 
 class HookPayload(User):
     id: str
@@ -61,6 +65,13 @@ async def speech_to_text(user:str, file: UploadFile = File(...)):
         return {"message": "OK", "id": id}
     except Exception as e:
         os.remove(file.filename)
+        return {"error": str(e)}
+
+@app.get("/api/wer/")
+async def score(payload: WerPayload):
+    try:
+        return {"score": calculate_wer(payload.reference, payload.hypothesis)}
+    except Exception as e:
         return {"error": str(e)}
 
 @app.get("/api/tts")

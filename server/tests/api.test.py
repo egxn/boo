@@ -14,9 +14,17 @@ def test_tts():
   resp = requests.post(url=url_tts, json=data)
   print(resp.json())
 
+def test_wer():
+  print('test_wer')
+  url_wer = api_url + '/wer/'
+  data = {'reference': 'Hello world', 'hypothesis': 'Hello world'}
+  resp = requests.get(url=url_wer, json=data)
+  print(resp.json().get('score') == 0.0)
+
 def main():
   test_stt()
   test_tts()
+  test_wer()
 
 if __name__ == '__main__':
   main()
