@@ -1,12 +1,15 @@
 from requests import post
 from tts_coqui import tts
+from tts_coqui_py import tts as tts_py
 from stt_whisper import stt
+
 
 URL_HOOK = 'http://localhost:5000/api/hook'
 API_DOMAIN = 'localhost:5000'
 
 async def tts_task(text, user, id):
-    client_id, filename = await tts(text, user)
+    # client_id, filename = await tts(text, user)
+    client_id, filename = await tts_py(text, user)
     data = {
         'id': id ,
         'user': client_id,

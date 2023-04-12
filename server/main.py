@@ -8,7 +8,7 @@ from redis import Redis
 from rq import Queue
 
 from tasks import stt_task, tts_task, error_queue
-from tts_coqui import list_models
+from tts_coqui_py import list_models
 from wsockets import ConnectionManager
 from utils import create_id, calculate_wer
 
@@ -76,8 +76,8 @@ async def score(payload: WerPayload):
 
 @app.get("/api/tts")
 async def tts_models():
-    tts_models, vocoders_models = await list_models()
-    return {"models": tts_models, "vocoders": vocoders_models}
+    tts_models = await list_models()
+    return {"models": tts_models }
 
 @app.post("/api/tts", status_code=201)
 async def text_to_speech(textToSpeech: Text):

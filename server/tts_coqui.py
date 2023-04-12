@@ -16,6 +16,7 @@ args = {
 }
 
 def get_use_cuda():
+    print(getenv("USE_CUDA") == '1')
     return getenv("USE_CUDA") == '1'
 
 def get_default_model():
