@@ -1,15 +1,25 @@
 from requests import post
-from tts_coqui import tts
-from tts_coqui_py import tts as tts_py
-from stt_whisper import stt
-
+from integrations.llm_llama import llm
+from integrations.tts_coqui import tts
+from integrations.stt_whisper import stt
 
 URL_HOOK = 'http://localhost:5000/api/hook'
 API_DOMAIN = 'localhost:5000'
 
+async def llm_task(prompt, user, id):
+    output = await llm(prompt=prompt)
+    print(output)
+    data = {
+        'id': id ,
+        'user': user,
+        'output': output,
+        'prompt': prompt,
+        'content_type': 'llm'
+    }
+    post(URL_HOOK, json=data)
+
 async def tts_task(text, user, id):
-    # client_id, filename = await tts(text, user)
-    client_id, filename = await tts_py(text, user)
+    client_id, filename = await tts(text, user)
     data = {
         'id': id ,
         'user': client_id,
@@ -18,7 +28,6 @@ async def tts_task(text, user, id):
         'content_type': 'tts'
     }
     post(URL_HOOK, json=data)
-
 
 async def stt_task(filename, user, id):
     text = stt(filename)

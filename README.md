@@ -1,13 +1,20 @@
 # 🐯 Boo
 
-Boo wraps tts and sst on a simple REST API to make it easy to use them in desktop apps.
+Boo is a local REST API to use ML models in local desktop apps.
 
-# Requirements
+# Models
 
-- [Coqui](https://github.com/coqui-ai/TTS) for TTS.
-- [Whisper](https://github.com/openai/whisper) for STT
-- [Redis](https://redis.io/) for queueing.
-- [FastAPI](https://fastapi.tiangolo.com/) for the Rest API and websockets.
+You need install each tool following the instructions in the model's repository.
+
+- 🐸 [Coqui](https://github.com/coqui-ai/TTS) for text to speech
+- 🦙 [Llama](https://github.com/ggerganov/llama.cpp) for large language models
+- 👁️‍🗨️ [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) for OCR (in progress)
+- 👄 [Whisper](https://github.com/openai/whisper) for speech to text
+
+# How it works
+
+- ⚡ [FastAPI](https://fastapi.tiangolo.com/) for the REST API and websockets.
+- 🟥 [Redis](https://redis.io/) for queueing.
 
 Additional requirements are listed in the `requirements.txt` file.
 
@@ -15,11 +22,11 @@ Additional requirements are listed in the `requirements.txt` file.
 
 ./run.sh
 
-# Client use
+# How to use it in your app
 
 1. Create a new websocket connection to `ws://localhost:5000/ws/{client_id}`
 2. Consume the API (using the same the client_id).
-3. The tasks queued using the REST API and the outcome will be sent using the websocket.
+3. The tasks are queued using the REST API and the outcome will be sent using the websocket.
 
 # Example clients list
 
@@ -31,6 +38,3 @@ Adds a button to the right of the `<p>` tags with the p selected to generate aud
 
 Adds a parrot button at the right of to the `<p>` tags  with the p selected to generate audio from the selected text.
 
-### Template
-
-A template to use as a starting point for your own client.

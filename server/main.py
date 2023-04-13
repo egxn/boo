@@ -6,10 +6,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from redis import Redis
 from rq import Queue
-
-from tasks import stt_task, tts_task, error_queue
-from tts_coqui_py import list_models
 from wsockets import ConnectionManager
+
+from integrations.tts_coqui import list_models
+from tasks import llm_task, stt_task, tts_task, error_queue
 from utils import create_id, calculate_wer
 
 class User(BaseModel):
@@ -75,7 +75,7 @@ async def score(payload: WerPayload):
         return {"error": str(e)}
 
 @app.get("/api/tts")
-async def tts_models():
+async def text_to_speech_models():
     tts_models = await list_models()
     return {"models": tts_models }
 
@@ -83,6 +83,13 @@ async def tts_models():
 async def text_to_speech(textToSpeech: Text):
     id = create_id()
     queue.enqueue(tts_task, args=(textToSpeech.text, textToSpeech.user, id), on_failure=error_queue)
+    return {"message": "OK", "id": id}
+
+@app.post("/api/llm", status_code=201)
+async def long_language_model(textToText: Text):
+    id = create_id()
+    print(textToText.text)
+    queue.enqueue(llm_task, args=(textToText.text, textToText.user, id), on_failure=error_queue)
     return {"message": "OK", "id": id}
 
 @app.post("/api/hook")

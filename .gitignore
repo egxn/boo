@@ -17,6 +17,8 @@ clients/chat/dist
 clients/chat/dist-ssr
 clients/chat/*.local
 
+clients/*/web-ext-artifacts
+
 # Editor directories and files
 clients/.vscode/*
 clients/!.vscode/extensions.json
@@ -27,3 +29,5 @@ clients/*.ntvs*
 clients/*.njsproj
 clients/*.sln
 clients/*.sw?
+
+SANDBOX.md

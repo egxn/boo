@@ -13,5 +13,6 @@ def stt(audio_file, model_name=None):
   if audio_file is not None:
       print("Processing audio file: %s" % audio_file)
       result = model.transcribe(audio_file)
+      print(result["text"])
       return result["text"]
   return None
