@@ -18,6 +18,9 @@ class User(BaseModel):
 class Text(User):
     text: str
 
+class LlmPayload(Text):
+    n: int
+
 class WerPayload(BaseModel):
     reference: str
     hypothesis: str
@@ -67,7 +70,7 @@ async def speech_to_text(user:str, file: UploadFile = File(...)):
         os.remove(file.filename)
         return {"error": str(e)}
 
-@app.get("/api/wer/")
+@app.post("/api/wer/")
 async def score(payload: WerPayload):
     try:
         return {"score": calculate_wer(payload.reference, payload.hypothesis)}
@@ -86,10 +89,11 @@ async def text_to_speech(textToSpeech: Text):
     return {"message": "OK", "id": id}
 
 @app.post("/api/llm", status_code=201)
-async def long_language_model(textToText: Text):
+async def long_language_model(textToText: LlmPayload):
     id = create_id()
     print(textToText.text)
-    queue.enqueue(llm_task, args=(textToText.text, textToText.user, id), on_failure=error_queue)
+    queue.enqueue(llm_task, args=(textToText.text, textToText.n,
+                  textToText.user, id), on_failure=error_queue, job_timeout=1000)
     return {"message": "OK", "id": id}
 
 @app.post("/api/hook")

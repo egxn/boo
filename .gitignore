@@ -1,4 +1,5 @@
-server/__pycache__
+server/__pycache__/
+server/integrations/__pycache__/*
 server/files_tts/*
 server/files_stt/*
 server/*.http

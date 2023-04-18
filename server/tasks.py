@@ -6,9 +6,9 @@ from integrations.stt_whisper import stt
 URL_HOOK = 'http://localhost:5000/api/hook'
 API_DOMAIN = 'localhost:5000'
 
-async def llm_task(prompt, user, id):
-    output = await llm(prompt=prompt)
-    print(output)
+async def llm_task(prompt, n, user, id):
+    output = await llm(prompt=prompt, n=n)
+
     data = {
         'id': id ,
         'user': user,

@@ -12,13 +12,13 @@ def get_llama_models():
 
 async def llm(
     prompt: str,
-    context: int = 2048,
+    context: int = 512,
     interactive_first: bool = False,
     interactive: bool = False,
-    model: str = "vicuna/ggml-vicuna-13b-4bit.bin",
-    n: int = 512,
-    r: str = "### 🧐",
-    repeat_penalty: float = 1.2,
+    model: str = "7B/ggml-model-q4_0.bin",
+    n: int = 10,
+    r: str = "### User:",
+    repeat_penalty: float = 1.4,
     temp: float = 0.0,
     threads: int = 6,
 ) -> str:
@@ -32,7 +32,6 @@ async def llm(
         "-m", llama_path + "models/" + model,
         "-n", str(n),
         "-p", prompt,
-        "-r", r,
         "-t", str(threads),
     ]
 
@@ -66,11 +65,5 @@ async def llm(
 
       stdout, stderr = await proc.communicate()
 
-      if stderr:
-          print(f"[{stderr.decode()}]")
-          print("error")
-          return None
-      else:
-          output = stdout.decode("UTF-8")
-          print(output)
-          return output
+      print(stdout.decode("UTF-8"))
+      return stdout.decode("UTF-8")
