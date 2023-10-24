@@ -8,6 +8,7 @@ rq
 requests
 sounddevice
 soundfile
+torch
 uvicorn
 websockets
 whisper

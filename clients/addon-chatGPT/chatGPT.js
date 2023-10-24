@@ -5,7 +5,7 @@ const USER_ID = '1312'
 
 const textToSpeech = async (message) => {
   try {
-    const response = await fetch(`${API}/tts`, {
+    const response = await fetch(`${API}/xtts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', },
       body: JSON.stringify({ user: USER_ID, text: message }),
@@ -71,7 +71,7 @@ ws.onmessage = (event) => {
     if (textarea[0]) {
       textarea[0].value = text
     }
-  } else if (contentType === 'tts') {
+  } else if (contentType === 'tts' || contentType === 'xtts') {
     const el = document.querySelector(`[data-ttsid="${id}"]`)
     if (el && el.querySelector('audio') === null ) {
       el.style.outline = '1px solid blue'
@@ -80,6 +80,15 @@ ws.onmessage = (event) => {
       audio.controls = true
       audio.src = url
       el.appendChild(audio)
+
+      const [requestTimestamp] = id.split('-')
+      const seconds = (Math.floor(Date.now() / 1000) - requestTimestamp)
+      const latencyEl = document.createElement('span')
+      latencyEl.style.fontSize = '14px'
+      latencyEl.style.color = 'grey'
+      latencyEl.innerHTML = `⏳ ${seconds.toFixed(2)}s`
+      el.appendChild(document.createElement('br'))
+      el.appendChild(latencyEl)
     }
   } else {
     console.log('unknown message', event.data)
@@ -124,23 +133,27 @@ recordButton.addEventListener('click', async () => {
 const targetNode = document.getElementById('__next');
 const config = { attributes: true, childList: true, subtree: true };
 
+const isValidTextNode = (node) => node.innerText.length > 0 
+  && node.getAttribute('data-ttsid') === null
+  && ( node.innerText.endsWith('.')
+    || node.innerText.endsWith('!')
+    || node.innerText.endsWith('?')
+    || node.innerText.endsWith('...')
+    || node.innerText.endsWith(':')
+    || node.innerText.endsWith('."')
+  )
+
 const callback = async (mutationList, observer) => {
   for (const mutation of mutationList) {
     if (mutation.type === 'childList') {
       const pNodes = document.querySelectorAll('p')
-      for (const p of pNodes) {
-        if (p.innerText.length > 0 && p.getAttribute('data-ttsid') === null
-          && (p.innerText.endsWith('.')
-            || p.innerText.endsWith('!')
-            || p.innerText.endsWith('?')
-            || p.innerText.endsWith('...')
-            || p.innerText.endsWith(':')
-            || p.innerText.endsWith('."')
-          )
-        ) {
-          const data = await textToSpeech(p.innerText)
-          p.setAttribute('data-ttsid', data.id)
-          p.style.outline = '1px solid green'
+      const listNodes = document.querySelectorAll('li')
+
+      for (const el of [...pNodes, ...listNodes]) {
+        if (isValidTextNode(el)) {
+          const data = await textToSpeech(el.innerText)
+          el.setAttribute('data-ttsid', data.id)
+          el.style.outline = '2px solid green'
         }
       }
     }

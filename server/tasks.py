@@ -1,6 +1,6 @@
 from requests import post
 from integrations.llm_llama import llm
-from integrations.tts_coqui import tts
+from integrations.tts_coqui import tts, xtts
 from integrations.stt_whisper import stt
 
 URL_HOOK = 'http://localhost:5000/api/hook'
@@ -20,6 +20,17 @@ async def llm_task(prompt, n, user, id):
 
 async def tts_task(text, user, id):
     client_id, filename = await tts(text, user)
+    data = {
+        'id': id ,
+        'user': client_id,
+        'url': 'http://' + API_DOMAIN + '/audios/' + filename,
+        'text': text,
+        'content_type': 'tts'
+    }
+    post(URL_HOOK, json=data)
+
+async def xtts_task(text, user, id):
+    client_id, filename = await xtts(text, user)
     data = {
         'id': id ,
         'user': client_id,

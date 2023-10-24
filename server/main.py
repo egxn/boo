@@ -6,10 +6,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from redis import Redis
 from rq import Queue
+from rq.registry import FinishedJobRegistry, StartedJobRegistry
 from wsockets import ConnectionManager
 
 from integrations.tts_coqui import list_models
-from tasks import llm_task, stt_task, tts_task, error_queue
+from tasks import llm_task, stt_task, tts_task, xtts_task, error_queue
 from utils import create_id, calculate_wer
 
 class User(BaseModel):
@@ -30,9 +31,10 @@ class HookPayload(User):
     url: str
     text: str
     content_type: str
-
+    
 redis_conn = Redis()
 queue = Queue(connection=redis_conn)
+queue.empty()
 manager = ConnectionManager()
 app = FastAPI()
 
@@ -88,6 +90,12 @@ async def text_to_speech(textToSpeech: Text):
     queue.enqueue(tts_task, args=(textToSpeech.text, textToSpeech.user, id), on_failure=error_queue)
     return {"message": "OK", "id": id}
 
+@app.post("/api/xtts", status_code=201)
+async def text_to_speech_x(textToSpeech: Text):
+    id = create_id()
+    job = queue.enqueue(xtts_task, args=(textToSpeech.text, textToSpeech.user, id), on_failure=error_queue)
+    return {"message": "OK", "id": id}
+
 @app.post("/api/llm", status_code=201)
 async def long_language_model(textToText: LlmPayload):
     id = create_id()
@@ -109,7 +117,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
             data = await websocket.receive_text()
             await manager.send_text_update(client_id, data)
     except WebSocketDisconnect:
-        manager.disconnect(websocket, client_id)
+        manager.disconnect(websocket, client_id, queue)
 
 
 if __name__ == "__main__":

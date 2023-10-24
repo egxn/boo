@@ -6,6 +6,7 @@ from TTS.api import TTS
 
 load_dotenv()
 
+
 def get_default_language():
     return getenv("COQUI_TTS_LANGUAGE")
 
@@ -35,6 +36,15 @@ async def tts(text: str, prefix="", model=None, speaker_id=None):
     model_name = getenv("COQUI_TTS_MODEL_NAME") if model is None else model
     tts = TTS(model_name=model_name, progress_bar=False, gpu=get_use_cuda())
     tts.tts_to_file(text=text, file_path='files_tts/' + filename)
+    return (prefix, filename)
+
+async def xtts(text: str, prefix=""):
+    filename = prefix + "_" + str(int(time.time())) + '.coqui.wav'
+    speaker_wav = "tts_coqui_teacher.wav"
+    device = "cuda" if get_use_cuda() else "cpu"
+    print(f"Using device: {device}")
+    tts = TTS("tts_models/multilingual/multi-dataset/xtts_v1").to(device)
+    tts.tts_to_file(text=text, speaker_wav=speaker_wav, language="en", file_path='files_tts/' + filename)
     return (prefix, filename)
 
 

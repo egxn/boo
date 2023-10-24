@@ -30,5 +30,5 @@ clients/*.ntvs*
 clients/*.njsproj
 clients/*.sln
 clients/*.sw?
-
+env/*
 SANDBOX.md
